@@ -15,7 +15,7 @@ This is intended for use as a module in another project. You would include it li
 // ... other resources
 
 module "ebs_backups" {
-  source = "github.com:nathanielks/ebs_snapshot_terraform"
+  source = "github.com:mivok/ebs_snapshot_terraform"
 }
 ```
 
@@ -29,7 +29,7 @@ It exposes the following variables:
 If you wanted to run a backup every hour:
 ```
 module "ebs_backups" {
-  source = "github.com:nathanielks/ebs_snapshot_terraform"
+  source = "github.com:mivok/ebs_snapshot_terraform"
 
   backups_schedule = "rate(1 hour)"
 }
@@ -38,7 +38,7 @@ module "ebs_backups" {
 If you wanted to use your own backup script:
 ```
 module "ebs_backups" {
-  source = "github.com:nathanielks/ebs_snapshot_terraform"
+  source = "github.com:mivok/ebs_snapshot_terraform"
 
   backups_zip = "${path.module}/backup.zip"
 }
