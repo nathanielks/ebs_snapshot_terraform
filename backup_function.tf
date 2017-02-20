@@ -53,37 +53,38 @@ EOF
 }
 
 resource "aws_lambda_function" "schedule_ebs_snapshot_backups" {
-  filename         = "schedule-ebs-snapshot-backups.zip"
+  filename         = "${coalesce(var.backups_zip, "${path.module}/schedule-ebs-snapshot-backups.zip")}"
   function_name    = "schedule_ebs_snapshot_backups"
   description      = "Automatically backs up instances tagged with backup: true"
   role             = "${aws_iam_role.ebs_backup_role.arn}"
   timeout          = 60
   handler          = "schedule-ebs-snapshot-backups.lambda_handler"
   runtime          = "python2.7"
-  source_code_hash = "${base64sha256(file("schedule-ebs-snapshot-backups.zip"))}"
+  source_code_hash = "${base64sha256(file(coalesce(var.backups_zip, "${path.module}/schedule-ebs-snapshot-backups.zip")))}"
 }
 
 resource "aws_lambda_function" "ebs_snapshot_janitor" {
-  filename         = "ebs-snapshot-janitor.zip"
+  filename = "${coalesce(var.janitor_zip, "${path.module}/ebs-snapshot-janitor.zip")}"
+
   function_name    = "ebs_snapshot_janitor"
   description      = "Cleans up old EBS backups"
   role             = "${aws_iam_role.ebs_backup_role.arn}"
   timeout          = 60
   handler          = "ebs-snapshot-janitor.lambda_handler"
   runtime          = "python2.7"
-  source_code_hash = "${base64sha256(file("ebs-snapshot-janitor.zip"))}"
+  source_code_hash = "${base64sha256(file(coalesce(var.janitor_zip, "${path.module}/ebs-snapshot-janitor.zip")))}"
 }
 
 resource "aws_cloudwatch_event_rule" "schedule_ebs_snapshot_backups" {
   name                = "schedule_ebs_snapshot_backups"
   description         = "Schedule for ebs snapshot backups"
-  schedule_expression = "${var.ebs_snapshot_backups_schedule}"
+  schedule_expression = "${var.backups_schedule}"
 }
 
 resource "aws_cloudwatch_event_rule" "schedule_ebs_snapshot_janitor" {
   name                = "schedule_ebs_snapshot_janitor"
   description         = "Schedule for ebs snapshot janitor"
-  schedule_expression = "${var.ebs_snapshot_janitor_schedule}"
+  schedule_expression = "${var.janitor_schedule}"
 }
 
 resource "aws_cloudwatch_event_target" "schedule_ebs_snapshot_backups" {
